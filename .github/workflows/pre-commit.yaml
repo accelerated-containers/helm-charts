@@ -15,5 +15,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install helm-docs
+        uses: jaxxstorm/action-install-gh-release@v1.10.0
+        with:
+          repo: norwoodj/helm-docs
+
       - name: Pre-commit
         uses: pre-commit/action@v3.0.1
