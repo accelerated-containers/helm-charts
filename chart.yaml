@@ -1,0 +1,142 @@
+---
+# Source: triton-inference-server/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: release-name-triton-inference-server
+  namespace: triton
+  labels:
+    helm.sh/chart: triton-inference-server-0.1.0
+    app.kubernetes.io/name: triton-inference-server
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "2.55.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: false
+---
+# Source: triton-inference-server/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-triton-inference-server
+  namespace: triton
+  labels:
+    helm.sh/chart: triton-inference-server-0.1.0
+    app.kubernetes.io/name: triton-inference-server
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "2.55.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - name: triton-http
+      port: 8000
+      targetPort: http
+    - name: triton-grpc
+      port: 8001
+      targetPort: grpc
+    - name: triton-metrics
+      port: 8002
+      targetPort: metrics
+  selector:
+    app.kubernetes.io/name: triton-inference-server
+    app.kubernetes.io/instance: release-name
+---
+# Source: triton-inference-server/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-triton-inference-server
+  namespace: triton
+  labels:
+    helm.sh/chart: triton-inference-server-0.1.0
+    app.kubernetes.io/name: triton-inference-server
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "2.55.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: triton-inference-server
+      app.kubernetes.io/instance: release-name
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: triton-inference-server-0.1.0
+        app.kubernetes.io/name: triton-inference-server
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/version: "2.55.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: release-name-triton-inference-server
+      securityContext:
+        fsGroup: 65532
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: triton-inference-server
+          args:
+            - "tritonserver"
+            - "--model-store=/models"
+            - "--model-control-mode=poll"
+            - "--repository-poll-secs=30"
+          image: "nvcr.io/nvidia/tritonserver:25.02-py3"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+            - name: grpc
+              containerPort: 8001
+            - name: metrics
+              containerPort: 8002
+          livenessProbe:
+            httpGet:
+              path: /v2/health/live
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /v2/health/ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          securityContext:
+            privileged: false
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.present
+                operator: In
+                values:
+                - "true"
+            - matchExpressions:
+              - key: aws.amazon.com/neuron.present
+                operator: In
+                values:
+                - "true"
+      tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Exists
+        - effect: NoSchedule
+          key: aws.amazon.com/neuron
+          operator: Exists
