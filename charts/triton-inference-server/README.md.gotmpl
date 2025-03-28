@@ -9,10 +9,10 @@ For Triton Inference Server documentation please see [https://github.com/triton-
 
 ## Installing the Chart
 
-First add the ClowdHaus repository to Helm:
+First add the accelerated-containers repository to Helm:
 
 ```bash
-helm repo add clowdhaus https://clowdhaus.github.io/helm-charts
+helm repo add accelerated-containers https://accelerated-containers.github.io/helm-charts/
 ```
 
 To install the chart with the release name `triton-inference-server` in the `triton` namespace and default configuration:
@@ -21,7 +21,7 @@ To install the chart with the release name `triton-inference-server` in the `tri
 helm install triton-inference-server \
     --namespace triton \
     --create-namespace \
-    clowdhaus/triton-inference-server
+    accelerated-containers/triton-inference-server
 ```
 
 {{ template "chart.requirementsSection" . }}
