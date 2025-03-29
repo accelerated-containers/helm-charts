@@ -3,6 +3,16 @@ entries:
   triton-inference-server:
   - apiVersion: v2
     appVersion: 2.55.0
+    created: "2025-03-29T01:04:58.188089323Z"
+    description: NVIDIA Triton Inference Server
+    digest: 70c5e12c3e0ed70d060ce8614a92f3229b7215389482bcc148c9e17567c7679a
+    name: triton-inference-server
+    type: application
+    urls:
+    - triton-inference-server-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 2.55.0
     created: "2025-03-28T21:55:17.974982988Z"
     description: NVIDIA Triton Inference Server
     digest: 681cfcfe2ddaa81896b6c83621e50aa43bcfdb63264d7206fd21f45ffb2baa9e
@@ -11,4 +21,4 @@ entries:
     urls:
     - triton-inference-server-0.1.0.tgz
     version: 0.1.0
-generated: "2025-03-28T21:55:17.974993138Z"
+generated: "2025-03-29T01:04:58.188096977Z"
