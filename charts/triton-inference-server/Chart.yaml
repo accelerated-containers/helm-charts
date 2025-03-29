@@ -3,5 +3,5 @@ name: triton-inference-server
 description: NVIDIA Triton Inference Server
 
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "2.55.0"
